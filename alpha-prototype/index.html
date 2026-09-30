@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d5a44">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-title" content="Alpha">
+<title>Alpha Prototype</title>
+<style>
+:root{color-scheme:light dark;--ink:#0f231c;--mute:#5b6d64;--brand:#0d5a44;--brand2:#1b8065;--mint:#c9a45c;--glow:#fff2cf;
+--g-bg:rgba(255,255,255,.5);--g-bd:rgba(255,255,255,.75);--g-hi:rgba(255,255,255,.9);--g-sh:rgba(15,45,36,.16);
+--base:#e3ebe6;--b1:#7fb8a1;--b2:#e8d2a0;--b3:#a8c7b8;
+--font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif;
+--serif:ui-serif,"New York","Iowan Old Style",Georgia,"Times New Roman",serif;--spring:cubic-bezier(.34,1.56,.64,1)}
+@media(prefers-color-scheme:dark){:root{--ink:#eef1ea;--mute:#93a89d;--brand:#0f6a51;--brand2:#22936f;--mint:#e2c47f;--glow:#fff1cc;
+--g-bg:rgba(20,40,33,.5);--g-bd:rgba(226,196,127,.18);--g-hi:rgba(255,255,255,.16);--g-sh:rgba(0,0,0,.55);
+--base:#07120f;--b1:#0e6b52;--b2:#7a5f28;--b3:#1b4a3c}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--base)}
+html,body{height:100%;margin:0}
+body{color:var(--ink);font:16px/1.55 var(--font);overflow:hidden}
+.hide{display:none!important}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+button{font:inherit;cursor:pointer;border:0;transition:transform .45s var(--spring)}
+button:active{transform:scale(.92)}
+
+/* living background, paused while the model generates so the GPU is free */
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden}
+.bg i{position:absolute;width:75vmax;height:75vmax;border-radius:50%;background:radial-gradient(circle,var(--c) 0,transparent 68%);opacity:.55;animation:drift 22s ease-in-out infinite alternate}
+.bg i:nth-child(1){--c:var(--b1);left:-28vmax;top:-22vmax}
+.bg i:nth-child(2){--c:var(--b2);right:-34vmax;top:22vh;animation-delay:-8s}
+.bg i:nth-child(3){--c:var(--b3);left:-18vmax;bottom:-34vmax;animation-delay:-14s}
+@keyframes drift{to{transform:translate(9vmax,-7vmax) scale(1.18)}}
+body.gen .bg i{animation-play-state:paused}
+
+/* liquid glass surfaces */
+header,.chip,.a .body,form,.cta.glass,.panel{background:var(--g-bg);-webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);border:1px solid var(--g-bd);box-shadow:0 10px 30px var(--g-sh),inset 0 1px 0 var(--g-hi),inset 0 -1px 0 rgba(255,255,255,.08)}
+
+/* orb */
+.orb{width:84px;height:84px;border-radius:50%;background:radial-gradient(circle at 32% 28%,var(--glow),var(--mint) 38%,var(--brand) 78%);box-shadow:inset 0 -8px 16px rgba(0,0,0,.18),inset 0 6px 12px rgba(255,255,255,.5),0 0 42px -6px var(--brand)}
+.orb.sm{width:30px;height:30px;box-shadow:inset 0 -3px 6px rgba(0,0,0,.18),inset 0 2px 5px rgba(255,255,255,.5),0 0 14px -3px var(--brand)}
+.orb.busy{animation:breathe 1.6s ease-in-out infinite}
+@keyframes breathe{50%{transform:scale(1.14)}}
+
+/* intro */
+#intro{position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px calc(28px + env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) calc(28px + env(safe-area-inset-left))}
+.orbwrap{position:relative;width:132px;height:132px;display:grid;place-items:center;margin-bottom:26px}
+.ring{position:absolute;inset:0;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:5}
+.track{stroke:var(--g-bd)}
+.arc{stroke:var(--mint);stroke-linecap:round;stroke-dasharray:339.3;stroke-dashoffset:339.3;transition:stroke-dashoffset .3s}
+h1{font-size:28px;line-height:1.15;margin:0 0 12px;max-width:16em;letter-spacing:-.02em}
+#intro p{color:var(--mute);margin:0 0 26px;max-width:22em}
+.cta{background:linear-gradient(160deg,var(--brand2),var(--brand));color:#f8f4e8;font-weight:700;padding:15px 30px;border-radius:999px;font-size:17px;min-width:220px;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 12px 28px -8px var(--brand)}
+.cta:disabled{opacity:.55}
+#hint{font-size:14px;margin:18px 0 0!important}
+
+/* app */
+#app{position:relative;height:100%}
+header{position:absolute;z-index:5;top:calc(8px + env(safe-area-inset-top));left:calc(12px + env(safe-area-inset-left));right:calc(12px + env(safe-area-inset-right));display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:26px}
+header b{font-size:17px;letter-spacing:-.01em;white-space:nowrap}
+#net{margin-left:auto;font-size:13px;color:var(--mute);display:flex;align-items:center;gap:6px}
+#net i{width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 8px var(--mint)}
+#net.off i{background:#f5a524;box-shadow:0 0 8px #f5a524}
+#log{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:calc(78px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(96px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));display:flex;flex-direction:column;gap:14px}
+#empty{margin:auto 0}
+#empty h2{font-size:28px;line-height:1.1;margin:0 0 6px;letter-spacing:-.02em}
+#empty p{color:var(--mute);margin:0 0 18px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{color:var(--ink);padding:10px 16px;border-radius:999px;font-size:15px}
+.row{display:flex;gap:9px;max-width:100%;animation:pop .55s var(--spring) both}
+.row.u{justify-content:flex-end;transform-origin:bottom right}
+.row.a{transform-origin:bottom left}
+@keyframes pop{from{opacity:0;transform:translateY(16px) scale(.85)}}
+.u .t{background:linear-gradient(160deg,var(--brand2),var(--brand));color:#f8f4e8;padding:10px 16px;border-radius:22px 22px 8px 22px;max-width:84%;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 10px 22px -10px var(--brand)}
+.a .orb{flex:none;margin-top:4px}
+.a .body{min-width:0;max-width:calc(100% - 40px);padding:10px 16px;border-radius:22px 22px 22px 8px}
+.t{white-space:pre-wrap;overflow-wrap:anywhere}
+.stat{font-size:12.5px;color:var(--mute);margin-top:4px}
+.caret::after{content:"";display:inline-block;width:8px;height:16px;margin-left:2px;vertical-align:-2px;background:var(--mint);border-radius:2px}
+.status{display:flex;align-items:center;gap:9px;color:var(--mute);font-size:15px;font-style:italic;padding:2px 0}
+.dots{display:inline-flex;gap:4px}
+.dots i{width:6px;height:6px;border-radius:50%;background:var(--mint);animation:bob 1s ease-in-out infinite}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes bob{50%{transform:translateY(-4px);opacity:.4}}
+.st{animation:swap .4s ease}
+@keyframes swap{from{opacity:0;transform:translateY(4px)}}
+
+/* composer: floating glass pill, send button morphs in when there is text */
+form{position:absolute;z-index:5;left:calc(12px + env(safe-area-inset-right));right:calc(12px + env(safe-area-inset-left));bottom:calc(10px + env(safe-area-inset-bottom));display:flex;align-items:flex-end;gap:8px;border-radius:28px;padding:6px 6px 6px 18px;transition:box-shadow .3s,transform .5s var(--spring)}
+form:focus-within{transform:translateY(-2px) scale(1.01)}
+textarea{flex:1;resize:none;border:0;background:none;color:var(--ink);font:inherit;font-size:16px;padding:9px 0;max-height:120px;outline:0}
+textarea::placeholder{color:var(--mute)}
+#send{width:0;height:42px;margin-left:-8px;opacity:0;transform:scale(.3);pointer-events:none;border-radius:50%;background:linear-gradient(160deg,var(--brand2),var(--brand));color:#f8f4e8;display:grid;place-items:center;flex:none;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 6px 16px -4px var(--brand);transition:width .5s var(--spring),margin .5s var(--spring),opacity .25s,transform .5s var(--spring)}
+#send.on{width:42px;margin-left:0;opacity:1;transform:scale(1);pointer-events:auto}
+#send.on:active{transform:scale(.88)}
+#send:disabled{opacity:.4}
+#send svg{width:20px;height:20px;flex:none}
+
+.ib{width:36px;height:36px;border-radius:50%;background:rgba(150,170,160,.2);color:var(--ink);display:grid;place-items:center;padding:0;flex:none}
+.ib svg{width:19px;height:19px}
+.row.still{animation:none}
+#sheet{position:absolute;inset:0;z-index:10;pointer-events:none}
+#sheet.open{pointer-events:auto}
+.scrim{position:absolute;inset:0;background:rgba(4,14,11,.4);opacity:0;transition:opacity .3s}
+#sheet.open .scrim{opacity:1}
+.panel{position:absolute;left:calc(8px + env(safe-area-inset-left));right:calc(8px + env(safe-area-inset-right));bottom:calc(8px + env(safe-area-inset-bottom));max-height:72%;overflow-y:auto;overscroll-behavior:contain;border-radius:30px;padding:8px 16px 16px;transform:translateY(115%);transition:transform .55s var(--spring)}
+#sheet.open .panel{transform:none}
+.grab{width:38px;height:5px;border-radius:3px;background:var(--mute);opacity:.5;margin:4px auto 10px}
+.panel h3{margin:0 0 4px;font-size:20px;letter-spacing:-.01em}
+.item{display:flex;align-items:center;gap:6px;margin-top:8px;background:rgba(150,170,160,.14);border-radius:18px}
+.pick{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;text-align:left;background:none;color:var(--ink);padding:11px 6px 11px 14px}
+.it{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.tm{font-size:12.5px;color:var(--mute)}
+.del{width:40px;height:40px;background:none;color:var(--mute);font-size:24px;line-height:1;flex:none}
+.none{color:var(--mute);margin:10px 0 4px}
+h1,#empty h2,.panel h3,header b{font-family:var(--serif);font-weight:600}
+header b{font-size:18px}
+@media(max-width:400px){#netlabel{display:none}}
+@media(prefers-reduced-motion:reduce){.bg i,.orb.busy,.dots i,.st,.row{animation:none}button,#send,form,.panel,.scrim{transition:none}}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"><i></i><i></i><i></i></div>
+<section id="intro">
+  <div class="orbwrap">
+    <svg class="ring" viewBox="0 0 120 120" aria-hidden="true"><circle class="track" cx="60" cy="60" r="54"/><circle id="arc" class="arc" cx="60" cy="60" r="54"/></svg>
+    <div id="introorb" class="orb"></div>
+  </div>
+  <h1 id="title">An AI that lives on your phone</h1>
+  <p id="sub">Download it once, a few hundred MB. After that it answers with no internet, and nothing you type leaves your device.</p>
+  <button id="loadbtn" class="cta">Download model</button>
+  <p id="hint"></p>
+</section>
+
+<section id="app" class="hide">
+  <header>
+    <div class="orb sm"></div><b>Alpha Prototype</b>
+    <span id="net"><i></i><span id="netlabel">Works offline</span></span>
+    <button id="hist" class="ib" aria-label="Recent chats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></button>
+    <button id="new" class="ib" aria-label="New chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+  </header>
+  <main id="log">
+    <div id="empty">
+      <h2>Ask me anything.</h2>
+      <p>I run on this phone, so even in airplane mode I'm here.</p>
+      <div class="chips">
+        <button class="chip">Explain photosynthesis simply</button>
+        <button class="chip">Write a short thank-you note</button>
+        <button class="chip">Give me 3 startup ideas</button>
+      </div>
+    </div>
+  </main>
+  <form id="f">
+    <textarea id="q" rows="1" placeholder="Message" enterkeyhint="send"></textarea>
+    <button id="send" aria-label="Send" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+  </form>
+  <div id="sheet"><div class="scrim" id="scrim"></div>
+    <div class="panel"><div class="grab"></div><h3>Recent chats</h3><div id="list"></div></div>
+  </div>
+</section>
+<script src="app.js" type="module"></script>
+</body>
+</html>
